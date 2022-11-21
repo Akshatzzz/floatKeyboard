@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="KeyboardArea">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">bottom</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">bottom</item>
+        <item name="android:background">@color/suggestion_strip_background</item>
+    </style>
+    <style name="KeyboardRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/keyboard_row_height</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="background">@color/white</item>
+    </style>
+    <style name="PinnedSuggestionArea">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">@dimen/keyboard_header_height</item>
+        <item name="android:layout_weight">0</item>
+        <item name="background">@color/suggestion_strip_background</item>
+    </style>
+    <style name="KeyboardRow.Header">
+        <item name="android:layout_height">@dimen/keyboard_header_height</item>
+        <item name="background">@android:color/white</item>
+    </style>
+    <style name="SoftKey">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">@dimen/text_size_normal</item>
+        <item name="android:background">"#ADD8E6"</item>
+    </style>
+    <style name="SoftKey.Function">
+        <item name="android:textColor">@color/black</item>
+    </style>
+    <style name="SoftKey.Function.Text">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">@dimen/text_size_symbol</item>
+    </style>
+    <style name="SoftKey.Space">
+        <item name="android:layout_weight">5</item>
+        <item name="android:textColor">@color/dark_color</item>
+    </style>
+    <style name="YellowText" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/yellow</item>
+        <item name="background">@color/pink</item>
+    </style>
+    <style name="GreenText" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/green</item>
+        <item name="fontFamily">monospace</item>
+    </style>
+    <style name="PinkBackground">
+        <item name="background">@color/light_pink</item>
+    </style>
+    <style name="YellowTheme" parent="@style/Theme.AutofillInlineSuggestion">
+        <item name="autofillInlineSuggestionTitle">@style/YellowText</item>
+        <item name="autofillInlineSuggestionSubtitle">@style/YellowText</item>
+    </style>
+    <style name="GreenTheme" parent="@style/Theme.AutofillInlineSuggestion">
+        <item name="autofillInlineSuggestionChip">@style/GreenText</item>
+        <item name="autofillInlineSuggestionTitle">@style/GreenText</item>
+        <item name="autofillInlineSuggestionSubtitle">@style/GreenText</item>
+    </style>
+</resources>
