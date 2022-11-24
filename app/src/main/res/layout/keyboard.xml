@@ -14,7 +14,8 @@
             android:text="Float">
 
         </androidx.appcompat.widget.AppCompatButton>
-    <LinearLayout style="@style/KeyboardRow">
+    <LinearLayout style="@style/KeyboardRow"
+        android:id="@+id/row1">
         <TextView
             android:id="@+id/key_pos_0_0"
             style="@style/SoftKey"/>
@@ -46,7 +47,8 @@
             android:id="@+id/key_pos_0_9"
             style="@style/SoftKey"/>
     </LinearLayout>
-    <LinearLayout style="@style/KeyboardRow">
+    <LinearLayout style="@style/KeyboardRow"
+        android:id="@+id/row2">
         <TextView
             android:id="@+id/key_pos_1_0"
             style="@style/SoftKey"/>
@@ -75,7 +77,8 @@
             android:id="@+id/key_pos_1_8"
             style="@style/SoftKey"/>
     </LinearLayout>
-    <LinearLayout style="@style/KeyboardRow">
+    <LinearLayout style="@style/KeyboardRow"
+        android:id="@+id/row3">
         <TextView
             android:id="@+id/key_pos_shift"
             style="@style/SoftKey.Function"/>
@@ -104,7 +107,8 @@
             android:id="@+id/key_pos_del"
             style="@style/SoftKey.Function"/>
     </LinearLayout>
-    <LinearLayout style="@style/KeyboardRow">
+    <LinearLayout style="@style/KeyboardRow"
+        android:id="@+id/row4">
         <TextView
             android:id="@+id/key_pos_symbol"
             style="@style/SoftKey.Function.Text"/>

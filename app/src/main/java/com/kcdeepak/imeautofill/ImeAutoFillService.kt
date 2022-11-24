@@ -49,6 +49,12 @@ class ImeAutoFillService : InputMethodService() {
     lateinit var lin: LinearLayout
     lateinit var constraint: ConstraintLayout
 
+
+    lateinit var kRow1:LinearLayout
+    lateinit var kRow2:LinearLayout
+    lateinit var kRow3:LinearLayout
+    lateinit var kRow4:LinearLayout
+
 //    lateinit var suggestionStrip: ViewGroup
 //    lateinit var pinnedSuggestionsStart: ViewGroup
 //    lateinit var pinnedSuggestionsEnd: ViewGroup
@@ -60,10 +66,13 @@ class ImeAutoFillService : InputMethodService() {
     var pressed_x1: Int? = null
     var pressed_y1: Int? = null
 
+    var rightDY:Float = 0.0f
+
     private val handler = Handler(Looper.getMainLooper())
     private var responseState = ResponseState.RESET
     private var delayedDeletion: Runnable? = null
     private var pendingResponse: Runnable? = null
+
 
 //    private val moveScrollableSuggestionsToBg = Runnable {
 //        scrollableSuggestionsClip.setZOrderedOnTop(false)
@@ -110,6 +119,11 @@ class ImeAutoFillService : InputMethodService() {
         }
 //        constraint = inputView.findViewById(R.id.parent_constraint)
         lin = inputView.findViewById(R.id.parent_layout)
+        kRow1=inputView.findViewById(R.id.row1)
+        kRow2=inputView.findViewById(R.id.row2)
+        kRow3=inputView.findViewById(R.id.row3)
+        kRow4=inputView.findViewById(R.id.row4)
+
     }
 
     override fun onCreateInputView(): View {
@@ -146,6 +160,45 @@ class ImeAutoFillService : InputMethodService() {
         super.onStartInputView(info, restarting)
         val temp = keyboard.inflateKeyboardView(LayoutInflater.from(this), inputView)
         btn.setOnTouchListener(mOnTouchListenerTv2)
+//        btn.setOnTouchListener(View.OnTouchListener { view, event ->
+//            val relativeLayoutParams = btn.layoutParams as LinearLayout.LayoutParams
+//            when (event?.action) {
+//                MotionEvent.ACTION_DOWN -> {
+//
+////               rightDX = view!!.x - event.rawX
+//                    rightDY = view!!.getY() - event.rawY;
+//                    Log.d("&&&&", "$rightDY .... ${view!!.getY()} .... ${event.rawY} ... ${lin.height}....${inputView.height}")
+//
+//                    pressed_y = event.getRawY()
+//
+//                }
+//                MotionEvent.ACTION_MOVE -> {
+//
+//                    var yDisplacement = event.rawY + rightDY
+//
+////                    if(yDisplacement<=0 || yDisplacement>=parentView.height - floatView.height) {
+////                        return@OnTouchListener true
+////                    }
+//
+//                    val y:Int = event.getRawY().toInt()
+//                    val dy = y - pressed_y!!
+//
+//                    lin!!.animate()
+////                        .x(displacement)
+//                        .y(yDisplacement)
+//                        .setDuration(0)
+//                        .start()
+//
+//                    relativeLayoutParams.topMargin += dy.toInt()
+//                    btn.layoutParams = relativeLayoutParams
+//                    pressed_y = y.toFloat()
+//                }
+//                else -> { // Note the block
+//                    return@OnTouchListener false
+//                }
+//            }
+//            true
+//        })
         Log.d(TAG, "onStartInputView() called")
     }
 
@@ -446,10 +499,16 @@ class ImeAutoFillService : InputMethodService() {
                     //where the finger is during the drag
 //                    pressed_x = event.getRawX()
                     pressed_y = event.getRawY()
-                    Log.d("Showing1211","@@@ TV2 ACTION_Down" + pressed_y.toString())
+                    rightDY = v!!.getY() - event.rawY;
                 }
                 MotionEvent.ACTION_MOVE -> {
                     Log.d("Showing", "tv2 ACTION_MOVE")
+
+                                        var yDisplacement = event.rawY + rightDY
+
+                    if(yDisplacement<=0 || yDisplacement>=inputView.height - (btn.height + kRow1.height + kRow2.height + kRow3.height + kRow4.height))  {
+                        return true
+                    }
 
                     //Calculate change in x and y
 //                    val x:Int = event.getRawX().toInt()
@@ -470,7 +529,7 @@ class ImeAutoFillService : InputMethodService() {
 
                 }
                 MotionEvent.ACTION_UP -> {
-                    Log.d("Showing", "TV2 ACTION_UP")
+                    return true
                 }
 
             }
@@ -478,3 +537,4 @@ class ImeAutoFillService : InputMethodService() {
         }
     }
 }
+
