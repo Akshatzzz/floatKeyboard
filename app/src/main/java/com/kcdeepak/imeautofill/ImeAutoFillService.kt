@@ -45,11 +45,12 @@ class ImeAutoFillService : InputMethodService() {
     lateinit var keyboard: Keyboard
     lateinit var decoder: Decoder
 
-    lateinit var btn: Button
+    lateinit var fBtn: Button
+    lateinit var mBtn: Button
     lateinit var lin: LinearLayout
     lateinit var constraint: ConstraintLayout
 
-
+    lateinit var kTopRow:LinearLayout
     lateinit var kRow1:LinearLayout
     lateinit var kRow2:LinearLayout
     lateinit var kRow3:LinearLayout
@@ -112,13 +113,12 @@ class ImeAutoFillService : InputMethodService() {
 //        pinnedSuggestionsEnd = inputView.findViewById(R.id.pinned_suggestions_end)
 //        scrollableSuggestionsClip = inputView.findViewById(R.id.scrollable_suggestions_clip)
 //        scrollableSuggestions = inputView.findViewById(R.id.scrollable_suggestions)
-        btn = inputView.findViewById(R.id.float_btn)
+        fBtn = inputView.findViewById(R.id.float_btn)
+        mBtn = inputView.findViewById(R.id.move_btn)
 
-        btn.setOnClickListener {
-            Toast.makeText(this,"Button clicked",Toast.LENGTH_SHORT).show()
-        }
 //        constraint = inputView.findViewById(R.id.parent_constraint)
         lin = inputView.findViewById(R.id.parent_layout)
+        kTopRow=inputView.findViewById(R.id.topRow)
         kRow1=inputView.findViewById(R.id.row1)
         kRow2=inputView.findViewById(R.id.row2)
         kRow3=inputView.findViewById(R.id.row3)
@@ -159,7 +159,7 @@ class ImeAutoFillService : InputMethodService() {
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(info, restarting)
         val temp = keyboard.inflateKeyboardView(LayoutInflater.from(this), inputView)
-        btn.setOnTouchListener(mOnTouchListenerTv2)
+        mBtn.setOnTouchListener(mOnTouchListenerTv2)
 //        btn.setOnTouchListener(View.OnTouchListener { view, event ->
 //            val relativeLayoutParams = btn.layoutParams as LinearLayout.LayoutParams
 //            when (event?.action) {
@@ -223,7 +223,7 @@ class ImeAutoFillService : InputMethodService() {
 //        val location: IntArray = IntArray(2)
 //        btn.getLocationOnScreen(location)
 
-        region.union(Rect(0,btn.top,btn.width,lin.bottom))
+        region.union(Rect(0,mBtn.top,lin.width,lin.bottom))
         outInsets?.touchableRegion?.set(region)
         outInsets?.touchableInsets = Insets.TOUCHABLE_INSETS_REGION
 
@@ -493,7 +493,7 @@ class ImeAutoFillService : InputMethodService() {
     }
     private val mOnTouchListenerTv2: View.OnTouchListener? = object: View.OnTouchListener{
         override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-            val relativeLayoutParams = btn.layoutParams as LinearLayout.LayoutParams
+            val relativeLayoutParams = kTopRow.layoutParams as LinearLayout.LayoutParams
             when(event!!.actionMasked){
                 MotionEvent.ACTION_DOWN -> {
                     //where the finger is during the drag
@@ -506,7 +506,7 @@ class ImeAutoFillService : InputMethodService() {
 
                                         var yDisplacement = event.rawY + rightDY
 
-                    if(yDisplacement<=0 || yDisplacement>=inputView.height - (btn.height + kRow1.height + kRow2.height + kRow3.height + kRow4.height))  {
+                    if(yDisplacement<=0 || yDisplacement>=inputView.height - (mBtn.height + kRow1.height + kRow2.height + kRow3.height + kRow4.height))  {
                         return true
                     }
 
@@ -521,7 +521,7 @@ class ImeAutoFillService : InputMethodService() {
                     //Update the margins
 //                    relativeLayoutParams.leftMargin += dx.toInt()
                     relativeLayoutParams.topMargin += dy.toInt()
-                    btn.layoutParams = relativeLayoutParams
+                    kTopRow.layoutParams = relativeLayoutParams
 
                     //Save where the user's finger was for the next ACTION_MOVE
                     pressed_y = y.toFloat()

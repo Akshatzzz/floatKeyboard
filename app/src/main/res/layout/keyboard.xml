@@ -1,128 +1,189 @@
-
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="wrap_content"
-    android:layout_width="match_parent"
-    android:orientation="vertical"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/parent_layout"
-    >
-    <androidx.appcompat.widget.AppCompatButton
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/topRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/float_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:background="@color/white"
-            android:text="Float">
+            android:gravity="center"
+
+            android:text="Toggle Float">
 
         </androidx.appcompat.widget.AppCompatButton>
-    <LinearLayout style="@style/KeyboardRow"
-        android:id="@+id/row1">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/move_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:gravity="center"
+            android:text="Move">
+
+        </androidx.appcompat.widget.AppCompatButton>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/row1"
+        style="@style/KeyboardRow">
+
         <TextView
             android:id="@+id/key_pos_0_0"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_0_1"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_0_2"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_0_3"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_0_4"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_0_5"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_0_6"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_0_7"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_0_8"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_0_9"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
     </LinearLayout>
-    <LinearLayout style="@style/KeyboardRow"
-        android:id="@+id/row2">
+
+    <LinearLayout
+        android:id="@+id/row2"
+        style="@style/KeyboardRow">
+
         <TextView
             android:id="@+id/key_pos_1_0"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_1_1"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_1_2"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_1_3"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_1_4"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_1_5"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_1_6"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_1_7"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_1_8"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
     </LinearLayout>
-    <LinearLayout style="@style/KeyboardRow"
-        android:id="@+id/row3">
+
+    <LinearLayout
+        android:id="@+id/row3"
+        style="@style/KeyboardRow">
+
         <TextView
             android:id="@+id/key_pos_shift"
-            style="@style/SoftKey.Function"/>
+            style="@style/SoftKey.Function" />
+
         <TextView
             android:id="@+id/key_pos_2_0"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_2_1"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_2_2"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_2_3"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_2_4"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_2_5"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_2_6"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_del"
-            style="@style/SoftKey.Function"/>
+            style="@style/SoftKey.Function" />
     </LinearLayout>
-    <LinearLayout style="@style/KeyboardRow"
-        android:id="@+id/row4">
+
+    <LinearLayout
+        android:id="@+id/row4"
+        style="@style/KeyboardRow">
+
         <TextView
             android:id="@+id/key_pos_symbol"
-            style="@style/SoftKey.Function.Text"/>
+            style="@style/SoftKey.Function.Text" />
+
         <TextView
             android:id="@+id/key_pos_bottom_0"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_space"
-            style="@style/SoftKey.Space"/>
+            style="@style/SoftKey.Space" />
+
         <TextView
             android:id="@+id/key_pos_bottom_1"
-            style="@style/SoftKey"/>
+            style="@style/SoftKey" />
+
         <TextView
             android:id="@+id/key_pos_enter"
-            style="@style/SoftKey.Function"/>
+            style="@style/SoftKey.Function" />
     </LinearLayout>
 </LinearLayout>
