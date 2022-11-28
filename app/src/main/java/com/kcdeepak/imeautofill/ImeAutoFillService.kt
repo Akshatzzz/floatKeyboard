@@ -14,10 +14,7 @@ import android.os.Looper
 import android.util.Log
 import android.util.Size
 import android.util.TypedValue
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InlineSuggestion
 import android.view.inputmethod.InlineSuggestionsRequest
@@ -159,7 +156,9 @@ class ImeAutoFillService : InputMethodService() {
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(info, restarting)
         val temp = keyboard.inflateKeyboardView(LayoutInflater.from(this), inputView)
+        if(flag==1)
         mBtn.setOnTouchListener(mOnTouchListenerTv2)
+
 //        btn.setOnTouchListener(View.OnTouchListener { view, event ->
 //            val relativeLayoutParams = btn.layoutParams as LinearLayout.LayoutParams
 //            when (event?.action) {
@@ -211,25 +210,67 @@ class ImeAutoFillService : InputMethodService() {
     }
 
     override fun onComputeInsets(outInsets: Insets?) {
-        super.onComputeInsets(outInsets)
-        Log.d(TAG, "onComputeInsets: ")
-        if (inputView != null) {
-            outInsets?.contentTopInsets =
-                (outInsets?.contentTopInsets)?.plus(inputView.getTopInsets())?.plus(2200)
-        }
-        val region = Region()
-        val keyboardWidth = inputView.width
-        val keyboardHeight = inputView.height
+
+        if(flag==1) {
+            fBtn.setOnClickListener{
+                flag=0
+            }
+            val params = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                weight = 1.0f
+                gravity = Gravity.TOP
+            }
+            lin.layoutParams=params
+            super.onComputeInsets(outInsets)
+            Log.d(TAG, "onComputeInsets: ")
+            if (inputView != null) {
+                outInsets?.contentTopInsets =
+                    (outInsets?.contentTopInsets)?.plus(inputView.getTopInsets())?.plus(2200)
+            }
+            val region = Region()
+            val keyboardWidth = inputView.width
+            val keyboardHeight = inputView.height
 //        val location: IntArray = IntArray(2)
 //        btn.getLocationOnScreen(location)
 
-        region.union(Rect(0,mBtn.top,lin.width,lin.bottom))
-        outInsets?.touchableRegion?.set(region)
-        outInsets?.touchableInsets = Insets.TOUCHABLE_INSETS_REGION
+            region.union(Rect(0, kTopRow.top, kTopRow.width, lin.bottom))
+            outInsets?.touchableRegion?.set(region)
+            outInsets?.touchableInsets = Insets.TOUCHABLE_INSETS_REGION
 
 //        Log.d("MyCoordinates","X: ${location[0].toString()},y: ${location[1].toString()}")
+        }
+        else if(flag==0) {
 
+            fBtn.setOnClickListener{
+                flag=1
+            }
+//            setMargins(inputView,0,0,0,0)
+            val params = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                weight = 1.0f
+                gravity = Gravity.BOTTOM
+            }
+            lin.layoutParams=params
+            setMargins(kTopRow,0,0,0,0)
+            super.onComputeInsets(outInsets)
+            Log.d(TAG, "onComputeInsets: ")
+            if(inputView!=null){
+                outInsets?.contentTopInsets = outInsets?.contentTopInsets?.plus(inputView.getTopInsets())
+            }
+            outInsets?.touchableInsets = Insets.TOUCHABLE_INSETS_CONTENT
+        }
+    }
 
+    fun setMargins(v: View, left: Int, top: Int, right: Int, bottom: Int) {
+        if (v.layoutParams is ViewGroup.MarginLayoutParams) {
+            val p = v.layoutParams as ViewGroup.MarginLayoutParams
+            p.setMargins(left, top, right, bottom)
+            v.requestLayout()
+        }
     }
 
     @SuppressLint("RestrictedApi")
@@ -328,146 +369,6 @@ class ImeAutoFillService : InputMethodService() {
         }
     }
 
-
-//    private fun postPendingResponse(response: InlineSuggestionsResponse) {
-//        cancelPendingResponse()
-//        val inlineSuggestions = response.inlineSuggestions
-//        responseState = ResponseState.RECEIVE_RESPONSE
-//        pendingResponse = Runnable {
-//            pendingResponse = null
-//            if (responseState == ResponseState.START_INPUT && inlineSuggestions.isEmpty()) {
-//                scheduleDelayedDeletion()
-//            } else {
-//                inflateThenShowSuggestion(inlineSuggestions)
-//            }
-//            responseState = ResponseState.RESET
-//        }
-//        handler.post(pendingResponse!!)
-//    }
-
-//    private fun inflateThenShowSuggestion(inlineSuggestions: List<InlineSuggestion>) {
-//        Log.d(TAG, "inflateThenShowSuggestion: ")
-//        val totalSuggestionCount = inlineSuggestions.size
-//        if (inlineSuggestions.isEmpty()) {
-//            mainExecutor.execute {
-//                updateInlineSuggestionStrip(Collections.emptyList())
-//            }
-//        }
-//        val suggestionMap = TreeMap<Int, SuggestionItem?>()
-//        val executor = Executors.newSingleThreadExecutor()
-//        for (i in 0 until totalSuggestionCount) {
-//            val index = i
-//            val inlineSuggestion = inlineSuggestions[i]
-//            val size =
-//                Size(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-//            inlineSuggestion.inflate(this, size, executor) {
-//                Log.d(TAG, "inflateThenShowSuggestion: New inline suggestion view ready")
-//                if (it != null) {
-//                    it.setOnClickListener {
-//                        Log.d(TAG, "inflateThenShowSuggestion: Received click on suggestion view")
-//                    }
-//                    it.setOnLongClickListener {
-//                        Log.d(
-//                            TAG,
-//                            "inflateThenShowSuggestion: Received long click on suggestion view"
-//                        )
-//                        true
-//                    }
-//                    val suggestionView = SuggestionItem(it, inlineSuggestion.info.isPinned)
-//                    suggestionMap.put(index, suggestionView)
-//                } else {
-//                    suggestionMap.put(index, null)
-//                }
-//                if (suggestionMap.size >= totalSuggestionCount) {
-//                    val suggestionItems: List<SuggestionItem?> = ArrayList(suggestionMap.values)
-//                    mainExecutor.execute {
-//                        updateInlineSuggestionStrip(suggestionItems)
-//                    }
-//                }
-//            }
-//        }
-//    }
-
-//    private fun scheduleDelayedDeletion() {
-//        if (inputView != null && delayedDeletion == null) {
-//            Log.d(
-//                TAG,
-//                "scheduleDelayedDeletion: Scheduling a Delayed deletion of inline suggestion"
-//            )
-//            delayedDeletion = Runnable {
-//                Log.d(
-//                    TAG,
-//                    "scheduleDelayedDeletion: Executing scheduled deleting of inline suggestion"
-//                )
-//                delayedDeletion = null
-//                clearInlineSuggestionStrip()
-//            }
-//            handler.post(delayedDeletion!!)
-//        }
-//    }
-
-//    private fun clearInlineSuggestionStrip() {
-//        if (inputView != null) {
-//            updateInlineSuggestionStrip(Collections.emptyList())
-//        }
-//    }
-
-//    private fun updateInlineSuggestionStrip(suggestionItems: List<SuggestionItem?>) {
-//        Log.d(TAG, "updateInlineSuggestionStrip: Actually updating the suggestion strip : ${suggestionItems.size}")
-//        pinnedSuggestionsStart.removeAllViews()
-//        scrollableSuggestions.removeAllViews()
-//        pinnedSuggestionsEnd.removeAllViews()
-//
-//        if(suggestionItems.isEmpty()){
-//            return
-//        }
-//        scrollableSuggestionsClip.setBackgroundColor(getColor(R.color.suggestion_strip_background))
-//        suggestionStrip.visibility = View.VISIBLE
-//
-//        for(suggestionItem in suggestionItems){
-//            if(suggestionItem == null){
-//                continue
-//            }
-//            val suggestionView = suggestionItem.view
-//            if(suggestionItem.isPinned){
-//                if(pinnedSuggestionsStart.childCount<=0){
-//                    pinnedSuggestionsStart.addView(suggestionView)
-//                }
-//                else{
-//                    pinnedSuggestionsEnd.addView(suggestionView)
-//                }
-//            }else{
-//                scrollableSuggestions.addView(suggestionView)
-//            }
-//        }
-//        Log.d(TAG, "updateInlineSuggestionStrip: ${SHOWCASE_BG_FG_TRANSITION} 1")
-//        Log.d(TAG, "updateInlineSuggestionStrip: ${SHOWCASE_UP_DOWN_TRANSITION} 2")
-//        if(SHOWCASE_BG_FG_TRANSITION){
-//            rescheduleShowcaseBgFgTransition()
-//        }
-//        if(SHOWCASE_UP_DOWN_TRANSITION){
-//            rescheduleShowcaseUpDownTransition()
-//        }
-//      }
-
-//    private fun rescheduleShowcaseUpDownTransition() {
-//        Log.d(TAG, "rescheduleShowcaseUpDownTransition: ")
-//        val handler = inputView.handler
-//        handler.removeCallbacks(moveScrollableSuggestionsToBg)
-//        handler.postDelayed(moveScrollableSuggestionsToBg, MOVE_SUGGESTION_TO_BG_TIMEOUT)
-//        handler.removeCallbacks(moveScrollableSuggestionsToFg)
-//        handler.postDelayed(moveScrollableSuggestionsToFg, MOVE_SUGGESTION_TO_FG_TIMEOUT)
-//    }
-
-//    private fun rescheduleShowcaseBgFgTransition() {
-//        Log.d(TAG, "rescheduleShowcaseBgFgTransition: ")
-//        val handler = inputView.handler
-//        handler.removeCallbacks(moveScrollableSuggestionsUp)
-//        handler.postDelayed(moveScrollableSuggestionsUp, MOVE_SUGGESTION_UP_TIMEOUT)
-//        handler.removeCallbacks(moveScrollableSuggestionsDown)
-//        handler.postDelayed(moveScrollableSuggestionsDown, MOVE_SUGGESTION_DOWN_TIMEOUT)
-//    }
-
     fun handle(data: String?) {
         Log.d(TAG, "handle: [${data}]")
          decoder.decodeAndApply(data!!)
@@ -475,7 +376,7 @@ class ImeAutoFillService : InputMethodService() {
 
     companion object{
         const val TAG:String = "ImeAutoFillService"
-
+        var flag=1
         const val SHOWCASE_BG_FG_TRANSITION:Boolean = true
         const val SHOWCASE_UP_DOWN_TRANSITION:Boolean = true
         const val MOVE_SUGGESTION_TO_BG_TIMEOUT:Long = 5000
@@ -491,22 +392,43 @@ class ImeAutoFillService : InputMethodService() {
         RECEIVE_RESPONSE,
         START_INPUT
     }
+
     private val mOnTouchListenerTv2: View.OnTouchListener? = object: View.OnTouchListener{
         override fun onTouch(v: View?, event: MotionEvent?): Boolean {
             val relativeLayoutParams = kTopRow.layoutParams as LinearLayout.LayoutParams
             when(event!!.actionMasked){
                 MotionEvent.ACTION_DOWN -> {
+                    Log.d("@@@@", "flag is: ${flag}")
                     //where the finger is during the drag
 //                    pressed_x = event.getRawX()
                     pressed_y = event.getRawY()
-                    rightDY = v!!.getY() - event.rawY;
+
+                    //view.getY() gives the relative y coordinates of the view wrt to the parent view
+                    rightDY = kTopRow!!.getY() - event.rawY;
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    Log.d("Showing", "tv2 ACTION_MOVE")
+                    Log.d("&&&&", "flag is: ${flag}")
 
-                                        var yDisplacement = event.rawY + rightDY
+                    var yDisplacement = event.rawY + rightDY
 
-                    if(yDisplacement<=0 || yDisplacement>=inputView.height - (mBtn.height + kRow1.height + kRow2.height + kRow3.height + kRow4.height))  {
+//                    yDisplacement<=0 ||
+
+                            if((yDisplacement>=inputView.height - (kTopRow.height + kRow1.height + kRow2.height + kRow3.height + kRow4.height)) || flag==0)  {
+//                                lin.y= 1680F
+//                                val params = LinearLayout.LayoutParams(
+//                                    LinearLayout.LayoutParams.WRAP_CONTENT,
+//                                    LinearLayout.LayoutParams.WRAP_CONTENT
+//                                ).apply {
+//                                    weight = 1.0f
+//                                    gravity = Gravity.BOTTOM
+//                                }
+//                                lin.layoutParams=params
+//                                lin.getLayoutParams().height = 593
+                                flag=0
+//                                setMargins(kTopRow,0,0,0,0)
+                                Log.d("$$$$", "flag is: ${flag}")
+//                                setMargins(lin,0,inputView.height -(kTopRow.height + kRow1.height + kRow2.height + kRow3.height + kRow4.height),0,0 )
+
                         return true
                     }
 
