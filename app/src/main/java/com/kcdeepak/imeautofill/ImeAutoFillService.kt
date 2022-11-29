@@ -212,17 +212,17 @@ class ImeAutoFillService : InputMethodService() {
     override fun onComputeInsets(outInsets: Insets?) {
 
         if(flag==1) {
-            fBtn.setOnClickListener{
-                flag=0
-            }
-            val params = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                weight = 1.0f
-                gravity = Gravity.TOP
-            }
-            lin.layoutParams=params
+//            fBtn.setOnClickListener{
+//                flag=0
+//            }
+//            val params = LinearLayout.LayoutParams(
+//                LinearLayout.LayoutParams.MATCH_PARENT,
+//                LinearLayout.LayoutParams.MATCH_PARENT
+//            ).apply {
+//                weight = 1.0f
+//                gravity = Gravity.CENTER
+//            }
+//            inputView.layoutParams =params
             super.onComputeInsets(outInsets)
             Log.d(TAG, "onComputeInsets: ")
             if (inputView != null) {
@@ -235,7 +235,7 @@ class ImeAutoFillService : InputMethodService() {
 //        val location: IntArray = IntArray(2)
 //        btn.getLocationOnScreen(location)
 
-            region.union(Rect(0, kTopRow.top, kTopRow.width, lin.bottom))
+            region.union(Rect(lin.x.toInt(), lin.y.toInt(), lin.x.toInt() + lin.width, lin.y.toInt() + lin.height))
             outInsets?.touchableRegion?.set(region)
             outInsets?.touchableInsets = Insets.TOUCHABLE_INSETS_REGION
 
@@ -243,9 +243,9 @@ class ImeAutoFillService : InputMethodService() {
         }
         else if(flag==0) {
 
-            fBtn.setOnClickListener{
-                flag=1
-            }
+//            fBtn.setOnClickListener{
+//                flag=1
+//            }
 //            setMargins(inputView,0,0,0,0)
             val params = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -255,7 +255,7 @@ class ImeAutoFillService : InputMethodService() {
                 gravity = Gravity.BOTTOM
             }
             lin.layoutParams=params
-            setMargins(kTopRow,0,0,0,0)
+//            setMargins(kTopRow,0,0,0,0)
             super.onComputeInsets(outInsets)
             Log.d(TAG, "onComputeInsets: ")
             if(inputView!=null){
@@ -395,7 +395,7 @@ class ImeAutoFillService : InputMethodService() {
 
     private val mOnTouchListenerTv2: View.OnTouchListener? = object: View.OnTouchListener{
         override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-            val relativeLayoutParams = kTopRow.layoutParams as LinearLayout.LayoutParams
+            val relativeLayoutParams = lin.layoutParams as LinearLayout.LayoutParams
             when(event!!.actionMasked){
                 MotionEvent.ACTION_DOWN -> {
                     Log.d("@@@@", "flag is: ${flag}")
@@ -404,7 +404,7 @@ class ImeAutoFillService : InputMethodService() {
                     pressed_y = event.getRawY()
 
                     //view.getY() gives the relative y coordinates of the view wrt to the parent view
-                    rightDY = kTopRow!!.getY() - event.rawY;
+                    rightDY = lin!!.getY() - event.rawY;
                 }
                 MotionEvent.ACTION_MOVE -> {
                     Log.d("&&&&", "flag is: ${flag}")
@@ -413,16 +413,16 @@ class ImeAutoFillService : InputMethodService() {
 
 //                    yDisplacement<=0 ||
 
-                            if((yDisplacement>=inputView.height - (kTopRow.height + kRow1.height + kRow2.height + kRow3.height + kRow4.height)) || flag==0)  {
+                            if((yDisplacement>= inputView.height - (kTopRow.height + kRow1.height + kRow2.height + kRow3.height + kRow4.height)) || flag==0)  {
 //                                lin.y= 1680F
-//                                val params = LinearLayout.LayoutParams(
-//                                    LinearLayout.LayoutParams.WRAP_CONTENT,
-//                                    LinearLayout.LayoutParams.WRAP_CONTENT
-//                                ).apply {
-//                                    weight = 1.0f
-//                                    gravity = Gravity.BOTTOM
-//                                }
-//                                lin.layoutParams=params
+                                val params = LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                                ).apply {
+                                    weight = 1.0f
+                                    gravity = Gravity.BOTTOM
+                                }
+                                lin.layoutParams=params
 //                                lin.getLayoutParams().height = 593
                                 flag=0
 //                                setMargins(kTopRow,0,0,0,0)
@@ -443,7 +443,7 @@ class ImeAutoFillService : InputMethodService() {
                     //Update the margins
 //                    relativeLayoutParams.leftMargin += dx.toInt()
                     relativeLayoutParams.topMargin += dy.toInt()
-                    kTopRow.layoutParams = relativeLayoutParams
+                    lin.layoutParams = relativeLayoutParams
 
                     //Save where the user's finger was for the next ACTION_MOVE
                     pressed_y = y.toFloat()
