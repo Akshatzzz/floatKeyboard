@@ -47,11 +47,13 @@ class ImeAutoFillService : InputMethodService() {
     lateinit var lin: LinearLayout
     lateinit var constraint: ConstraintLayout
 
-    lateinit var kTopRow:LinearLayout
-    lateinit var kRow1:LinearLayout
-    lateinit var kRow2:LinearLayout
-    lateinit var kRow3:LinearLayout
-    lateinit var kRow4:LinearLayout
+    lateinit var kTopRow: LinearLayout
+    lateinit var kRow1: LinearLayout
+    lateinit var kRow2: LinearLayout
+    lateinit var kRow3: LinearLayout
+    lateinit var kRow4: LinearLayout
+
+    lateinit var kHandle:Button
 
 //    lateinit var suggestionStrip: ViewGroup
 //    lateinit var pinnedSuggestionsStart: ViewGroup
@@ -64,7 +66,10 @@ class ImeAutoFillService : InputMethodService() {
     var pressed_x1: Int? = null
     var pressed_y1: Int? = null
 
-    var rightDY:Float = 0.0f
+    var rightDY: Float = 0.0f
+    var rightDX: Float = 0.0f
+
+    var temp:Float=0.0f
 
     private val handler = Handler(Looper.getMainLooper())
     private var responseState = ResponseState.RESET
@@ -115,28 +120,30 @@ class ImeAutoFillService : InputMethodService() {
 
 //        constraint = inputView.findViewById(R.id.parent_constraint)
         lin = inputView.findViewById(R.id.parent_layout)
-        kTopRow=inputView.findViewById(R.id.topRow)
-        kRow1=inputView.findViewById(R.id.row1)
-        kRow2=inputView.findViewById(R.id.row2)
-        kRow3=inputView.findViewById(R.id.row3)
-        kRow4=inputView.findViewById(R.id.row4)
+        kTopRow = inputView.findViewById(R.id.topRow)
+        kRow1 = inputView.findViewById(R.id.row1)
+        kRow2 = inputView.findViewById(R.id.row2)
+        kRow3 = inputView.findViewById(R.id.row3)
+        kRow4 = inputView.findViewById(R.id.row4)
+
+        kHandle = inputView.findViewById(R.id.handle)
 
     }
 
     override fun onCreateInputView(): View {
-        Log.d(TAG, "onCreateInputView() called")
+//        Log.d(TAG, "onCreateInputView() called")
         return inputView
     }
 
     override fun onBindInput() {
         super.onBindInput()
-        Log.d(TAG, "onBindInput: Service bound to a new client")
+//        Log.d(TAG, "onBindInput: Service bound to a new client")
     }
 
 
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
-        Log.d(TAG, "onStartInput() called")
+//        Log.d(TAG, "onStartInput() called")
         decoder = Decoder(currentInputConnection)
         if (keyboard != null) {
             keyboard.reset()
@@ -150,14 +157,115 @@ class ImeAutoFillService : InputMethodService() {
 
     override fun onFinishInput() {
         super.onFinishInput()
-        Log.d(TAG, "onFinishInput: ")
+//        Log.d(TAG, "onFinishInput: ")
     }
 
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(info, restarting)
         val temp = keyboard.inflateKeyboardView(LayoutInflater.from(this), inputView)
-        if(flag==1)
-        mBtn.setOnTouchListener(mOnTouchListenerTv2)
+        if (flag == 1) {
+            mBtn.setOnTouchListener(mOnTouchListenerTv2)
+            val params = LinearLayout.LayoutParams(
+                800, LinearLayout.LayoutParams.WRAP_CONTENT
+
+            ).apply {
+                gravity = Gravity.CENTER_VERTICAL
+
+                //after installing, first time onpening keyboard, this value is 0
+                leftMargin=(inputView.width-lin.width)/2
+
+                Log.d("*****", "${(inputView.width-lin.width)/2}")
+            }
+            lin.layoutParams = params
+//            lin.x= ((inputView.width-lin.width)/2).toFloat()
+            kHandle.setVisibility(View.VISIBLE)
+        }
+
+        kHandle.setOnTouchListener(object : View.OnTouchListener {
+            var centerX = 0f
+            var centerY = 0f
+            var startR = 0f
+            var startX = 0f
+            var startY = 0f
+            var startScale = 0f
+
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                if (event?.action == MotionEvent.ACTION_DOWN) {
+//                    Log.d("****",
+//                        "${button.getLeft()},   ${button.x},   ${button.getRight()},  ${button.width},  ${parentLayout.width} ")
+//                    Log.d("****", "${(button.getLeft() + button.getRight()) / 2f}")
+
+                    // calculate center of image
+                    centerX = (lin.getLeft() + lin.getRight()) / 2f
+                    centerY = (lin.getTop() + lin.getBottom()) / 2f;
+
+//                    Log.d("****", "${event.getRawX()},  ${dragHandle.getX()},    ${centerX}")
+                    // recalculate coordinates of starting point
+                    startX = event.getRawX() - kHandle.getX() + centerX;
+                    startY = event.getRawY() - kHandle.getY() + centerY;
+
+                    Log.d("****", "${startX}")
+
+                    // get starting distance and scale
+                    startR = Math.hypot((event.getRawX() - startX).toDouble(),
+                        (event.getRawY() - startY).toDouble()).toFloat()
+                    startScale = lin.getScaleX()
+
+                    Log.d("****",
+                        "${(event.getRawX() - startX)},  startR: ${startR},  startScale: ${startScale}")
+
+                } else if (event?.action == MotionEvent.ACTION_MOVE) {
+
+//                    if (dragHandle.getX() + dragHandle.width +10 >= parentLayout.width) {
+//                        return true
+//                    }
+
+                    // calculate new distance
+                    var newR: Double = Math.hypot((event.getRawX() - startX).toDouble(),
+                        (event.getRawY() - startY).toDouble())
+
+                    //set new scale
+                    var newScale = newR / startR * startScale
+
+
+//                    Log.d("****", "newR: ${newR},    scale: ${newScale}")
+
+//                    Log.d("****",
+//                        " ${dragHandle.width+dragHandle.getX()},  dragHandle.getX(): ${dragHandle.getX()}, parentLayout.width: ${parentLayout.width} ")
+
+                    //setting constraints
+//                    if (newScale <0.5) {
+//                        newScale =0.5
+//                    }
+//                    if(newScale>=1.5) {
+//                        newScale -= (newScale-1.5)
+//                    }
+
+//                    if(newScale>1.5) {
+//                        newScale=1.5
+//                    }
+
+//                    Log.d("****", "x: ${dragHandle.getX()},  width: ${dragHandle.width}")
+
+
+//                    if(dragHandle.getX() + dragHandle.width >= parentLayout.width) {
+//                        dragHandle.setX(dragHandle.getX()-7*dragHandle.width)
+//                    }
+                    lin.setScaleX(newScale.toFloat())
+                    lin.setScaleY(newScale.toFloat())
+
+
+                    //move handler
+                    kHandle.setX((centerX + lin.getWidth() / 2f * newScale).toFloat())
+                    kHandle.setY((centerY + lin.getHeight() / 2f * newScale).toFloat())
+
+
+                } else if (event?.getAction() == MotionEvent.ACTION_UP) {
+                }
+
+                return true
+            }
+        })
 
 //        btn.setOnTouchListener(View.OnTouchListener { view, event ->
 //            val relativeLayoutParams = btn.layoutParams as LinearLayout.LayoutParams
@@ -198,12 +306,12 @@ class ImeAutoFillService : InputMethodService() {
 //            }
 //            true
 //        })
-        Log.d(TAG, "onStartInputView() called")
+//        Log.d("******", "onStartInputView() called")
     }
 
     override fun onFinishInputView(finishingInput: Boolean) {
         super.onFinishInputView(finishingInput)
-        Log.d(TAG, "onFinishInputView: 2")
+//        Log.d(TAG, "onFinishInputView: 2")
 //        if (!finishingInput) {
 //            clearInlineSuggestionStrip()
 //        }
@@ -211,7 +319,7 @@ class ImeAutoFillService : InputMethodService() {
 
     override fun onComputeInsets(outInsets: Insets?) {
 
-        if(flag==1) {
+        if (flag == 1) {
 //            fBtn.setOnClickListener{
 //                flag=0
 //            }
@@ -223,8 +331,9 @@ class ImeAutoFillService : InputMethodService() {
 //                gravity = Gravity.CENTER
 //            }
 //            inputView.layoutParams =params
+//            setMargins(lin, 20, 0, 20,0)
             super.onComputeInsets(outInsets)
-            Log.d(TAG, "onComputeInsets: ")
+//            Log.d(TAG, "onComputeInsets: ")
             if (inputView != null) {
                 outInsets?.contentTopInsets =
                     (outInsets?.contentTopInsets)?.plus(inputView.getTopInsets())?.plus(2200)
@@ -235,13 +344,15 @@ class ImeAutoFillService : InputMethodService() {
 //        val location: IntArray = IntArray(2)
 //        btn.getLocationOnScreen(location)
 
-            region.union(Rect(lin.x.toInt(), lin.y.toInt(), lin.x.toInt() + lin.width, lin.y.toInt() + lin.height))
+            region.union(Rect(lin.x.toInt(),
+                lin.y.toInt(),
+                lin.x.toInt() + lin.width,
+                lin.y.toInt() + lin.height))
             outInsets?.touchableRegion?.set(region)
             outInsets?.touchableInsets = Insets.TOUCHABLE_INSETS_REGION
 
 //        Log.d("MyCoordinates","X: ${location[0].toString()},y: ${location[1].toString()}")
-        }
-        else if(flag==0) {
+        } else if (flag == 0) {
 
 //            fBtn.setOnClickListener{
 //                flag=1
@@ -254,12 +365,13 @@ class ImeAutoFillService : InputMethodService() {
                 weight = 1.0f
                 gravity = Gravity.BOTTOM
             }
-            lin.layoutParams=params
+            lin.layoutParams = params
 //            setMargins(kTopRow,0,0,0,0)
             super.onComputeInsets(outInsets)
-            Log.d(TAG, "onComputeInsets: ")
-            if(inputView!=null){
-                outInsets?.contentTopInsets = outInsets?.contentTopInsets?.plus(inputView.getTopInsets())
+//            Log.d(TAG, "onComputeInsets: ")
+            if (inputView != null) {
+                outInsets?.contentTopInsets =
+                    outInsets?.contentTopInsets?.plus(inputView.getTopInsets())
             }
             outInsets?.touchableInsets = Insets.TOUCHABLE_INSETS_CONTENT
         }
@@ -275,7 +387,7 @@ class ImeAutoFillService : InputMethodService() {
 
     @SuppressLint("RestrictedApi")
     override fun onCreateInlineSuggestionsRequest(uiExtras: Bundle): InlineSuggestionsRequest {
-        Log.d(TAG, "onCreateInlineSuggestionsRequest() called")
+//        Log.d(TAG, "onCreateInlineSuggestionsRequest() called")
         val stylesBuilder = UiVersions.newStylesBuilder()
         val style = InlineSuggestionUi.newStyleBuilder()
             .setSingleIconChipStyle(
@@ -337,7 +449,7 @@ class ImeAutoFillService : InputMethodService() {
     }
 
     private fun toPixel(dp: Float): Int {
-        Log.d(TAG, "toPixel: being called")
+//        Log.d(TAG, "toPixel: being called")
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, resources.displayMetrics)
             .roundToInt()
     }
@@ -355,7 +467,7 @@ class ImeAutoFillService : InputMethodService() {
 
     private fun cancelPendingResponse() {
         if (pendingResponse != null) {
-            Log.d(TAG, "cancelPendingResponse: Cancelling Pending Response")
+//            Log.d(TAG, "cancelPendingResponse: Cancelling Pending Response")
             handler.removeCallbacks(pendingResponse!!)
             pendingResponse = null
         }
@@ -363,94 +475,137 @@ class ImeAutoFillService : InputMethodService() {
 
     private fun cancelDelayedDeletion(msg: String) {
         if (delayedDeletion != null) {
-            Log.d(TAG, "$msg canceling delayed deletion")
+//            Log.d(TAG, "$msg canceling delayed deletion")
             handler.removeCallbacks(delayedDeletion!!)
             delayedDeletion = null
         }
     }
 
     fun handle(data: String?) {
-        Log.d(TAG, "handle: [${data}]")
-         decoder.decodeAndApply(data!!)
+//        Log.d(TAG, "handle: [${data}]")
+        decoder.decodeAndApply(data!!)
     }
 
-    companion object{
-        const val TAG:String = "ImeAutoFillService"
-        var flag=1
-        const val SHOWCASE_BG_FG_TRANSITION:Boolean = true
-        const val SHOWCASE_UP_DOWN_TRANSITION:Boolean = true
-        const val MOVE_SUGGESTION_TO_BG_TIMEOUT:Long = 5000
-        const val MOVE_SUGGESTION_TO_FG_TIMEOUT:Long = 15000
-        const val MOVE_SUGGESTION_UP_TIMEOUT:Long = 5000
-        const val MOVE_SUGGESTION_DOWN_TIMEOUT:Long = 15000
+    companion object {
+        const val TAG: String = "ImeAutoFillService"
+        var flag = 1
+        const val SHOWCASE_BG_FG_TRANSITION: Boolean = true
+        const val SHOWCASE_UP_DOWN_TRANSITION: Boolean = true
+        const val MOVE_SUGGESTION_TO_BG_TIMEOUT: Long = 5000
+        const val MOVE_SUGGESTION_TO_FG_TIMEOUT: Long = 15000
+        const val MOVE_SUGGESTION_UP_TIMEOUT: Long = 5000
+        const val MOVE_SUGGESTION_DOWN_TIMEOUT: Long = 15000
 
-        data class SuggestionItem(val view:InlineContentView,val isPinned:Boolean)
+        data class SuggestionItem(val view: InlineContentView, val isPinned: Boolean)
     }
 
-    enum class ResponseState{
+    enum class ResponseState {
         RESET,
         RECEIVE_RESPONSE,
         START_INPUT
     }
 
-    private val mOnTouchListenerTv2: View.OnTouchListener? = object: View.OnTouchListener{
+    private val mOnTouchListenerTv2: View.OnTouchListener? = object : View.OnTouchListener {
         override fun onTouch(v: View?, event: MotionEvent?): Boolean {
             val relativeLayoutParams = lin.layoutParams as LinearLayout.LayoutParams
-            when(event!!.actionMasked){
+            when (event!!.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
-                    Log.d("@@@@", "flag is: ${flag}")
+//                    Log.d("@@@@", "flag is: ${flag}")
                     //where the finger is during the drag
-//                    pressed_x = event.getRawX()
+                    pressed_x = event.getRawX()
                     pressed_y = event.getRawY()
 
                     //view.getY() gives the relative y coordinates of the view wrt to the parent view
                     rightDY = lin!!.getY() - event.rawY;
+                    rightDX = lin!!.getX() - event.rawX
+
+                    temp=lin!!.getX()
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    Log.d("&&&&", "flag is: ${flag}")
+//                    Log.d("&&&&", "flag is: ${flag}")
 
+//                    if(lin!=null) {
+//                        lin.background.alpha = 100
+//                    }
+
+                    if(flag==1) {
+                        lin.setAlpha(0.7f)
+                    }
                     var yDisplacement = event.rawY + rightDY
+                    var xDisplacement = event.rawX + rightDX
 
 //                    yDisplacement<=0 ||
 
-                            if((yDisplacement>= inputView.height - (kTopRow.height + kRow1.height + kRow2.height + kRow3.height + kRow4.height)) || flag==0)  {
+                    if ((yDisplacement >= inputView.height - (kTopRow.height + kRow1.height + kRow2.height + kRow3.height + kRow4.height)) || flag == 0) {
 //                                lin.y= 1680F
-                                val params = LinearLayout.LayoutParams(
-                                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                                    LinearLayout.LayoutParams.WRAP_CONTENT
-                                ).apply {
-                                    weight = 1.0f
-                                    gravity = Gravity.BOTTOM
-                                }
-                                lin.layoutParams=params
+                        val params = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        ).apply {
+                            weight = 1.0f
+                            gravity = Gravity.BOTTOM
+                        }
+                        lin.layoutParams = params
 //                                lin.getLayoutParams().height = 593
-                                flag=0
+
+                        kHandle.setVisibility(View.GONE)
+                        flag = 0
 //                                setMargins(kTopRow,0,0,0,0)
-                                Log.d("$$$$", "flag is: ${flag}")
+//                                Log.d("$$$$", "flag is: ${flag}")
 //                                setMargins(lin,0,inputView.height -(kTopRow.height + kRow1.height + kRow2.height + kRow3.height + kRow4.height),0,0 )
 
                         return true
                     }
 
+//                    //my bound code below (produces jank)
+//                    if(xDisplacement<=0 || xDisplacement>=(inputView.width - lin.width)) {
+//                        return true
+//                    }
+
                     //Calculate change in x and y
-//                    val x:Int = event.getRawX().toInt()
-                    val y:Int = event.getRawY().toInt()
+                    val x: Int = event.getRawX().toInt()
+                    val y: Int = event.getRawY().toInt()
 
                     //Update the margins
-//                    val dx = x - pressed_x!!
+                    var dx = x - pressed_x!!
                     val dy = y - pressed_y!!
 
-                    //Update the margins
+//                    dx = dx + temp
+//
+//                    if(dx<0) {
+//                        dx=0f
+//                    }
+//
+//                    dx=dx-temp
+
+//                    Update the margins
+
+
+                    if(xDisplacement<0) {
+                        xDisplacement= 0F
+                    }
+
+                    lin!!.animate()
+                        .x(xDisplacement)
+                        .y(yDisplacement)
+                        .setDuration(0)
+                        .start()
+
 //                    relativeLayoutParams.leftMargin += dx.toInt()
-                    relativeLayoutParams.topMargin += dy.toInt()
-                    lin.layoutParams = relativeLayoutParams
+//                    relativeLayoutParams.topMargin += dy.toInt()
+//                    lin.layoutParams = relativeLayoutParams
 
                     //Save where the user's finger was for the next ACTION_MOVE
                     pressed_y = y.toFloat()
-//                    pressed_x = x.toFloat()
+                    pressed_x = x.toFloat()
+
 
                 }
                 MotionEvent.ACTION_UP -> {
+//                    if(lin!=null) {
+//                        lin.background.alpha = 255
+//                    }
+                    lin.setAlpha(1.0f)
                     return true
                 }
 
