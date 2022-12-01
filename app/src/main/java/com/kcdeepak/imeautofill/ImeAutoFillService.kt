@@ -53,7 +53,7 @@ class ImeAutoFillService : InputMethodService() {
     lateinit var kRow3: LinearLayout
     lateinit var kRow4: LinearLayout
 
-    lateinit var kHandle:Button
+    lateinit var kHandle: Button
 
 //    lateinit var suggestionStrip: ViewGroup
 //    lateinit var pinnedSuggestionsStart: ViewGroup
@@ -69,7 +69,7 @@ class ImeAutoFillService : InputMethodService() {
     var rightDY: Float = 0.0f
     var rightDX: Float = 0.0f
 
-    var temp:Float=0.0f
+    var temp: Float = 0.0f
 
     private val handler = Handler(Looper.getMainLooper())
     private var responseState = ResponseState.RESET
@@ -172,13 +172,13 @@ class ImeAutoFillService : InputMethodService() {
                 gravity = Gravity.CENTER_VERTICAL
 
                 //after installing, first time onpening keyboard, this value is 0
-                leftMargin=(inputView.width-lin.width)/2
+                leftMargin = (inputView.width - lin.width) / 2
 
-                Log.d("*****", "${(inputView.width-lin.width)/2}")
+//                Log.d("*****", "${(inputView.width-lin.width)/2}")
             }
             lin.layoutParams = params
 //            lin.x= ((inputView.width-lin.width)/2).toFloat()
-            kHandle.setVisibility(View.VISIBLE)
+//            kHandle.setVisibility(View.VISIBLE)
         }
 
         kHandle.setOnTouchListener(object : View.OnTouchListener {
@@ -204,15 +204,15 @@ class ImeAutoFillService : InputMethodService() {
                     startX = event.getRawX() - kHandle.getX() + centerX;
                     startY = event.getRawY() - kHandle.getY() + centerY;
 
-                    Log.d("****", "${startX}")
+//                    Log.d("****", "${startX}")
 
                     // get starting distance and scale
                     startR = Math.hypot((event.getRawX() - startX).toDouble(),
                         (event.getRawY() - startY).toDouble()).toFloat()
                     startScale = lin.getScaleX()
 
-                    Log.d("****",
-                        "${(event.getRawX() - startX)},  startR: ${startR},  startScale: ${startScale}")
+//                    Log.d("****",
+//                        "${(event.getRawX() - startX)},  startR: ${startR},  startScale: ${startScale}")
 
                 } else if (event?.action == MotionEvent.ACTION_MOVE) {
 
@@ -488,7 +488,7 @@ class ImeAutoFillService : InputMethodService() {
 
     companion object {
         const val TAG: String = "ImeAutoFillService"
-        var flag = 1
+        var flag = 0
         const val SHOWCASE_BG_FG_TRANSITION: Boolean = true
         const val SHOWCASE_UP_DOWN_TRANSITION: Boolean = true
         const val MOVE_SUGGESTION_TO_BG_TIMEOUT: Long = 5000
@@ -507,37 +507,46 @@ class ImeAutoFillService : InputMethodService() {
 
     private val mOnTouchListenerTv2: View.OnTouchListener? = object : View.OnTouchListener {
         override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-            val relativeLayoutParams = lin.layoutParams as LinearLayout.LayoutParams
             when (event!!.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
-//                    Log.d("@@@@", "flag is: ${flag}")
-                    //where the finger is during the drag
-                    pressed_x = event.getRawX()
-                    pressed_y = event.getRawY()
 
                     //view.getY() gives the relative y coordinates of the view wrt to the parent view
                     rightDY = lin!!.getY() - event.rawY;
                     rightDX = lin!!.getX() - event.rawX
 
-                    temp=lin!!.getX()
+                    Log.d("****",
+                        "downERawY: ${event.rawY}, y: ${lin!!.getY()}, rightDY: ${rightDY}")
+
+                    temp = lin!!.getX()
                 }
                 MotionEvent.ACTION_MOVE -> {
-//                    Log.d("&&&&", "flag is: ${flag}")
 
-//                    if(lin!=null) {
-//                        lin.background.alpha = 100
-//                    }
-
-                    if(flag==1) {
+                    if (flag == 1) {
                         lin.setAlpha(0.7f)
                     }
+
                     var yDisplacement = event.rawY + rightDY
                     var xDisplacement = event.rawX + rightDX
 
-//                    yDisplacement<=0 ||
+                    Log.d("****", "moveERawY: ${event.rawY}, yDisplacement: ${yDisplacement}")
 
-                    if ((yDisplacement >= inputView.height - (kTopRow.height + kRow1.height + kRow2.height + kRow3.height + kRow4.height)) || flag == 0) {
-//                                lin.y= 1680F
+                    if (xDisplacement < 0) {
+                        xDisplacement = 0F
+                    } else if (xDisplacement > inputView.width - lin.width) {
+                        xDisplacement = (inputView.width - lin.width).toFloat()
+                    }
+                    if (yDisplacement < 0) {
+                        yDisplacement = 0f
+                    }
+                    if (yDisplacement > inputView.height - lin.height) {
+//                        yDisplacement= (inputView.height-lin.height).toFloat()
+
+                        lin!!.animate()
+                            .x(0F)
+                            .y((inputView.height - lin.height).toFloat())
+                            .setDuration(0)
+                            .start()
+
                         val params = LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.WRAP_CONTENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT
@@ -548,42 +557,42 @@ class ImeAutoFillService : InputMethodService() {
                         lin.layoutParams = params
 //                                lin.getLayoutParams().height = 593
 
-                        kHandle.setVisibility(View.GONE)
+//                        kHandle.setVisibility(View.GONE)
                         flag = 0
 //                                setMargins(kTopRow,0,0,0,0)
 //                                Log.d("$$$$", "flag is: ${flag}")
 //                                setMargins(lin,0,inputView.height -(kTopRow.height + kRow1.height + kRow2.height + kRow3.height + kRow4.height),0,0 )
 
                         return true
+
                     }
+
+
+//                    if ((yDisplacement >= inputView.height - (kTopRow.height + kRow1.height + kRow2.height + kRow3.height + kRow4.height)) || flag == 0) {
+//                        val params = LinearLayout.LayoutParams(
+//                            LinearLayout.LayoutParams.WRAP_CONTENT,
+//                            LinearLayout.LayoutParams.WRAP_CONTENT
+//                        ).apply {
+//                            weight = 1.0f
+//                            gravity = Gravity.BOTTOM
+//                        }
+//                        lin.layoutParams = params
+////                                lin.getLayoutParams().height = 593
+//
+////                        kHandle.setVisibility(View.GONE)
+//                        flag = 0
+////                                setMargins(kTopRow,0,0,0,0)
+////                                Log.d("$$$$", "flag is: ${flag}")
+////                                setMargins(lin,0,inputView.height -(kTopRow.height + kRow1.height + kRow2.height + kRow3.height + kRow4.height),0,0 )
+//
+//                        return true
+//                    }
 
 //                    //my bound code below (produces jank)
 //                    if(xDisplacement<=0 || xDisplacement>=(inputView.width - lin.width)) {
 //                        return true
 //                    }
 
-                    //Calculate change in x and y
-                    val x: Int = event.getRawX().toInt()
-                    val y: Int = event.getRawY().toInt()
-
-                    //Update the margins
-                    var dx = x - pressed_x!!
-                    val dy = y - pressed_y!!
-
-//                    dx = dx + temp
-//
-//                    if(dx<0) {
-//                        dx=0f
-//                    }
-//
-//                    dx=dx-temp
-
-//                    Update the margins
-
-
-                    if(xDisplacement<0) {
-                        xDisplacement= 0F
-                    }
 
                     lin!!.animate()
                         .x(xDisplacement)
@@ -591,20 +600,9 @@ class ImeAutoFillService : InputMethodService() {
                         .setDuration(0)
                         .start()
 
-//                    relativeLayoutParams.leftMargin += dx.toInt()
-//                    relativeLayoutParams.topMargin += dy.toInt()
-//                    lin.layoutParams = relativeLayoutParams
-
-                    //Save where the user's finger was for the next ACTION_MOVE
-                    pressed_y = y.toFloat()
-                    pressed_x = x.toFloat()
-
 
                 }
                 MotionEvent.ACTION_UP -> {
-//                    if(lin!=null) {
-//                        lin.background.alpha = 255
-//                    }
                     lin.setAlpha(1.0f)
                     return true
                 }
