@@ -165,18 +165,6 @@ class ImeAutoFillService : InputMethodService() {
         val temp = keyboard.inflateKeyboardView(LayoutInflater.from(this), inputView)
         if (flag == 1) {
             mBtn.setOnTouchListener(mOnTouchListenerTv2)
-            val params = LinearLayout.LayoutParams(
-                800, LinearLayout.LayoutParams.WRAP_CONTENT
-
-            ).apply {
-                gravity = Gravity.CENTER_VERTICAL
-
-                //after installing, first time onpening keyboard, this value is 0
-                leftMargin = (inputView.width - lin.width) / 2
-
-//                Log.d("*****", "${(inputView.width-lin.width)/2}")
-            }
-            lin.layoutParams = params
 //            lin.x= ((inputView.width-lin.width)/2).toFloat()
 //            kHandle.setVisibility(View.VISIBLE)
         }
@@ -320,18 +308,21 @@ class ImeAutoFillService : InputMethodService() {
     override fun onComputeInsets(outInsets: Insets?) {
 
         if (flag == 1) {
-//            fBtn.setOnClickListener{
-//                flag=0
-//            }
-//            val params = LinearLayout.LayoutParams(
-//                LinearLayout.LayoutParams.MATCH_PARENT,
-//                LinearLayout.LayoutParams.MATCH_PARENT
-//            ).apply {
-//                weight = 1.0f
-//                gravity = Gravity.CENTER
-//            }
-//            inputView.layoutParams =params
-//            setMargins(lin, 20, 0, 20,0)
+            fBtn.setOnClickListener{
+                flag=0
+            }
+            val params = LinearLayout.LayoutParams(
+                800, LinearLayout.LayoutParams.WRAP_CONTENT
+
+            ).apply {
+                gravity = Gravity.CENTER_VERTICAL
+
+                //after installing, first time onpening keyboard, this value is 0
+                leftMargin = (inputView.width - lin.width) / 2
+
+//                Log.d("*****", "${(inputView.width-lin.width)/2}")
+            }
+            lin.layoutParams = params
             super.onComputeInsets(outInsets)
 //            Log.d(TAG, "onComputeInsets: ")
             if (inputView != null) {
@@ -354,10 +345,11 @@ class ImeAutoFillService : InputMethodService() {
 //        Log.d("MyCoordinates","X: ${location[0].toString()},y: ${location[1].toString()}")
         } else if (flag == 0) {
 
-//            fBtn.setOnClickListener{
-//                flag=1
-//            }
+            fBtn.setOnClickListener{
+                flag=1
+            }
 //            setMargins(inputView,0,0,0,0)
+            lin.animate().x(0f).y((inputView.height - lin.height).toFloat()).setDuration(0).start()
             val params = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -488,7 +480,7 @@ class ImeAutoFillService : InputMethodService() {
 
     companion object {
         const val TAG: String = "ImeAutoFillService"
-        var flag = 0
+        var flag = 1
         const val SHOWCASE_BG_FG_TRANSITION: Boolean = true
         const val SHOWCASE_UP_DOWN_TRANSITION: Boolean = true
         const val MOVE_SUGGESTION_TO_BG_TIMEOUT: Long = 5000
@@ -538,7 +530,9 @@ class ImeAutoFillService : InputMethodService() {
                     if (yDisplacement < 0) {
                         yDisplacement = 0f
                     }
-                    if (yDisplacement > inputView.height - lin.height) {
+
+                    //this flag==0 prevents keyboard from moving in docked mode, KEEP IT!
+                    if (yDisplacement > inputView.height - lin.height || flag == 0) {
 //                        yDisplacement= (inputView.height-lin.height).toFloat()
 
                         lin!!.animate()
