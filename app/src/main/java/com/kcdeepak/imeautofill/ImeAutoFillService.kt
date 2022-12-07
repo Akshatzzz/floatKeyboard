@@ -34,6 +34,7 @@ import java.util.*
 import java.util.concurrent.Executors
 import kotlin.collections.ArrayList
 import kotlin.math.roundToInt
+import kotlin.properties.Delegates
 
 
 @RequiresApi(Build.VERSION_CODES.R)
@@ -69,6 +70,7 @@ class ImeAutoFillService : InputMethodService() {
     var rightDY: Float = 0.0f
     var rightDX: Float = 0.0f
 
+    var flag:Int = 1
     var temp: Float = 0.0f
 
     private val handler = Handler(Looper.getMainLooper())
@@ -185,14 +187,18 @@ class ImeAutoFillService : InputMethodService() {
 
                     // calculate center of image
                     centerX = (lin.getLeft() + lin.getRight()) / 2f
-                    centerY = (lin.getTop() + lin.getBottom()) / 2f;
+                    centerY = (lin.getTop() + lin.getBottom()) / 2f
 
 //                    Log.d("****", "${event.getRawX()},  ${dragHandle.getX()},    ${centerX}")
                     // recalculate coordinates of starting point
-                    startX = event.getRawX() - kHandle.getX() + centerX;
-                    startY = event.getRawY() - kHandle.getY() + centerY;
+                    Log.d("&&&&", "${kHandle.getY()},  ${centerY}")
 
-//                    Log.d("****", "${startX}")
+                    /* below lin.getX() and lin.getY() is added to fix inverse resizing  (we want coordinates with respect
+                    to whole screen, instead of parent layout(which is not whole scree in this case)*/
+                    startX = event.getRawX() - (kHandle.getX()+lin.getX()) + centerX;
+                    startY = event.getRawY() - (kHandle.getY()+lin.getY()) + centerY;
+
+//                    Log.d("&&&&", "${startX}")
 
                     // get starting distance and scale
                     startR = Math.hypot((event.getRawX() - startX).toDouble(),
@@ -209,11 +215,22 @@ class ImeAutoFillService : InputMethodService() {
 //                    }
 
                     // calculate new distance
+                    Log.d("&&&&", "startX: ${startX}, eventX: ${event.getRawX()}, startY:${startY}, eventY: ${event.getRawY()}")
+
                     var newR: Double = Math.hypot((event.getRawX() - startX).toDouble(),
                         (event.getRawY() - startY).toDouble())
 
                     //set new scale
                     var newScale = newR / startR * startScale
+
+                    Log.d("&&&&", "newR: ${newR}, newScale: ${newScale}")
+
+//                    if(newScale>1) {
+//                        newScale=1-(newScale-1)
+//                    }
+//                    if(newScale<1) {
+//                        newScale=1+(1-newScale)
+//                    }
 
 
 //                    Log.d("****", "newR: ${newR},    scale: ${newScale}")
@@ -323,6 +340,7 @@ class ImeAutoFillService : InputMethodService() {
 //                Log.d("*****", "${(inputView.width-lin.width)/2}")
             }
             lin.layoutParams = params
+            kHandle.setVisibility(View.VISIBLE)
             super.onComputeInsets(outInsets)
 //            Log.d(TAG, "onComputeInsets: ")
             if (inputView != null) {
@@ -344,6 +362,11 @@ class ImeAutoFillService : InputMethodService() {
 
 //        Log.d("MyCoordinates","X: ${location[0].toString()},y: ${location[1].toString()}")
         } else if (flag == 0) {
+
+            kHandle.setVisibility(View.GONE)
+
+            lin.setScaleX(1.toFloat())
+            lin.setScaleY(1.toFloat())
 
             fBtn.setOnClickListener{
                 flag=1
@@ -480,7 +503,7 @@ class ImeAutoFillService : InputMethodService() {
 
     companion object {
         const val TAG: String = "ImeAutoFillService"
-        var flag = 1
+//        var flag = 1
         const val SHOWCASE_BG_FG_TRANSITION: Boolean = true
         const val SHOWCASE_UP_DOWN_TRANSITION: Boolean = true
         const val MOVE_SUGGESTION_TO_BG_TIMEOUT: Long = 5000
@@ -533,6 +556,8 @@ class ImeAutoFillService : InputMethodService() {
 
                     //this flag==0 prevents keyboard from moving in docked mode, KEEP IT!
                     if (yDisplacement > inputView.height - lin.height || flag == 0) {
+
+                        kHandle.setVisibility(View.GONE)
 //                        yDisplacement= (inputView.height-lin.height).toFloat()
 
                         lin!!.animate()

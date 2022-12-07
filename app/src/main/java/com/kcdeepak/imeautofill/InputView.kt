@@ -2,8 +2,10 @@ package com.kcdeepak.imeautofill
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 
 class InputView(context: Context, attributeSet: AttributeSet) : LinearLayout(context,attributeSet) {
     var realHeight:Int=0
