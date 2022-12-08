@@ -545,11 +545,17 @@ class ImeAutoFillService : InputMethodService() {
 
                     Log.d("****", "moveERawY: ${event.rawY}, yDisplacement: ${yDisplacement}")
 
+                    //top bound
                     if (xDisplacement < 0) {
                         xDisplacement = 0F
-                    } else if (xDisplacement > inputView.width - lin.width) {
+                    }
+
+                    //right bound
+                    if (xDisplacement > inputView.width - lin.width) {
                         xDisplacement = (inputView.width - lin.width).toFloat()
                     }
+
+                    //left bound
                     if (yDisplacement < 0) {
                         yDisplacement = 0f
                     }
