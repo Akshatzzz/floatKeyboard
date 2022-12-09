@@ -16,9 +16,7 @@ import android.util.Size
 import android.util.TypedValue
 import android.view.*
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InlineSuggestion
 import android.view.inputmethod.InlineSuggestionsRequest
-import android.view.inputmethod.InlineSuggestionsResponse
 import android.widget.*
 import android.widget.inline.InlineContentView
 import android.widget.inline.InlinePresentationSpec
@@ -29,12 +27,8 @@ import androidx.autofill.inline.common.TextViewStyle
 import androidx.autofill.inline.common.ViewStyle
 import androidx.autofill.inline.v1.InlineSuggestionUi
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.get
 import java.util.*
-import java.util.concurrent.Executors
-import kotlin.collections.ArrayList
 import kotlin.math.roundToInt
-import kotlin.properties.Delegates
 
 
 @RequiresApi(Build.VERSION_CODES.R)
@@ -72,6 +66,13 @@ class ImeAutoFillService : InputMethodService() {
 
     var flag:Int = 1
     var temp: Float = 0.0f
+
+    var temp1:Double = 0.0
+    var temp2:Double = 0.0
+    var temp3:Float = 0f
+    var temp4:Float = 0f
+
+    var newScale: Double =1.0
 
     private val handler = Handler(Looper.getMainLooper())
     private var responseState = ResponseState.RESET
@@ -195,6 +196,8 @@ class ImeAutoFillService : InputMethodService() {
 
                     /* below lin.getX() and lin.getY() is added to fix inverse resizing  (we want coordinates with respect
                     to whole screen, instead of parent layout(which is not whole scree in this case)*/
+
+                    /* (kHandle.getX()+lin.getX()) kHnadle ke top right coordinates as it moves in inputView */
                     startX = event.getRawX() - (kHandle.getX()+lin.getX()) + centerX;
                     startY = event.getRawY() - (kHandle.getY()+lin.getY()) + centerY;
 
@@ -210,10 +213,6 @@ class ImeAutoFillService : InputMethodService() {
 
                 } else if (event?.action == MotionEvent.ACTION_MOVE) {
 
-//                    if (dragHandle.getX() + dragHandle.width +10 >= parentLayout.width) {
-//                        return true
-//                    }
-
                     // calculate new distance
                     Log.d("&&&&", "startX: ${startX}, eventX: ${event.getRawX()}, startY:${startY}, eventY: ${event.getRawY()}")
 
@@ -221,48 +220,23 @@ class ImeAutoFillService : InputMethodService() {
                         (event.getRawY() - startY).toDouble())
 
                     //set new scale
-                    var newScale = newR / startR * startScale
+                    newScale = newR / startR * startScale
+
+                    //temp1, temp2 for adjusting bounds after resizing
+                    //no need to calcuate them on moving lin, when scale remains same in that condition
+                    temp1 =(lin.width - lin.width*newScale)/2
+                    temp2 =(lin.height - lin.height*newScale)/2
 
                     Log.d("&&&&", "newR: ${newR}, newScale: ${newScale}")
 
-//                    if(newScale>1) {
-//                        newScale=1-(newScale-1)
-//                    }
-//                    if(newScale<1) {
-//                        newScale=1+(1-newScale)
-//                    }
-
-
-//                    Log.d("****", "newR: ${newR},    scale: ${newScale}")
-
-//                    Log.d("****",
-//                        " ${dragHandle.width+dragHandle.getX()},  dragHandle.getX(): ${dragHandle.getX()}, parentLayout.width: ${parentLayout.width} ")
-
-                    //setting constraints
-//                    if (newScale <0.5) {
-//                        newScale =0.5
-//                    }
-//                    if(newScale>=1.5) {
-//                        newScale -= (newScale-1.5)
-//                    }
-
-//                    if(newScale>1.5) {
-//                        newScale=1.5
-//                    }
-
-//                    Log.d("****", "x: ${dragHandle.getX()},  width: ${dragHandle.width}")
-
-
-//                    if(dragHandle.getX() + dragHandle.width >= parentLayout.width) {
-//                        dragHandle.setX(dragHandle.getX()-7*dragHandle.width)
-//                    }
                     lin.setScaleX(newScale.toFloat())
                     lin.setScaleY(newScale.toFloat())
 
 
-                    //move handler
-                    kHandle.setX((centerX + lin.getWidth() / 2f * newScale).toFloat())
-                    kHandle.setY((centerY + lin.getHeight() / 2f * newScale).toFloat())
+
+//                    //move handler, NO NEED HERE as we are animating the whole view which includes the handle
+//                    kHandle.setX(((centerX) + lin.getWidth() / 2f * newScale).toFloat())
+//                    kHandle.setY(((centerY) + lin.getHeight() / 2f * newScale).toFloat())
 
 
                 } else if (event?.getAction() == MotionEvent.ACTION_UP) {
@@ -272,45 +246,6 @@ class ImeAutoFillService : InputMethodService() {
             }
         })
 
-//        btn.setOnTouchListener(View.OnTouchListener { view, event ->
-//            val relativeLayoutParams = btn.layoutParams as LinearLayout.LayoutParams
-//            when (event?.action) {
-//                MotionEvent.ACTION_DOWN -> {
-//
-////               rightDX = view!!.x - event.rawX
-//                    rightDY = view!!.getY() - event.rawY;
-//                    Log.d("&&&&", "$rightDY .... ${view!!.getY()} .... ${event.rawY} ... ${lin.height}....${inputView.height}")
-//
-//                    pressed_y = event.getRawY()
-//
-//                }
-//                MotionEvent.ACTION_MOVE -> {
-//
-//                    var yDisplacement = event.rawY + rightDY
-//
-////                    if(yDisplacement<=0 || yDisplacement>=parentView.height - floatView.height) {
-////                        return@OnTouchListener true
-////                    }
-//
-//                    val y:Int = event.getRawY().toInt()
-//                    val dy = y - pressed_y!!
-//
-//                    lin!!.animate()
-////                        .x(displacement)
-//                        .y(yDisplacement)
-//                        .setDuration(0)
-//                        .start()
-//
-//                    relativeLayoutParams.topMargin += dy.toInt()
-//                    btn.layoutParams = relativeLayoutParams
-//                    pressed_y = y.toFloat()
-//                }
-//                else -> { // Note the block
-//                    return@OnTouchListener false
-//                }
-//            }
-//            true
-//        })
 //        Log.d("******", "onStartInputView() called")
     }
 
@@ -328,6 +263,8 @@ class ImeAutoFillService : InputMethodService() {
             fBtn.setOnClickListener{
                 flag=0
             }
+
+
             val params = LinearLayout.LayoutParams(
                 800, LinearLayout.LayoutParams.WRAP_CONTENT
 
@@ -353,10 +290,12 @@ class ImeAutoFillService : InputMethodService() {
 //        val location: IntArray = IntArray(2)
 //        btn.getLocationOnScreen(location)
 
-            region.union(Rect(lin.x.toInt(),
-                lin.y.toInt(),
-                lin.x.toInt() + lin.width,
-                lin.y.toInt() + lin.height))
+            Log.d("^^^", "temp1: ${temp1}, temp2: ${temp2}")
+
+            region.union(Rect((lin.x.toInt() + temp1).toInt(),
+                (lin.y.toInt() + temp2 ).toInt(),
+                (lin.x.toInt() + lin.width -temp1).toInt(),
+                (lin.y.toInt() + lin.height - temp2 ).toInt()))
             outInsets?.touchableRegion?.set(region)
             outInsets?.touchableInsets = Insets.TOUCHABLE_INSETS_REGION
 
@@ -370,6 +309,14 @@ class ImeAutoFillService : InputMethodService() {
 
             fBtn.setOnClickListener{
                 flag=1
+
+//                //so that touchable region works fine after toggling float mode from docked mode
+//                //won't work cause temp1 and temp2 are calculated while scaling and not on compute insets
+//                newScale= 1.0
+
+                //so that touchable region works fine after toggling float mode from docked mode
+                temp1= 0.0
+                temp2= 0.0
             }
 //            setMargins(inputView,0,0,0,0)
             lin.animate().x(0f).y((inputView.height - lin.height).toFloat()).setDuration(0).start()
@@ -546,26 +493,27 @@ class ImeAutoFillService : InputMethodService() {
                     Log.d("****", "moveERawY: ${event.rawY}, yDisplacement: ${yDisplacement}")
 
                     //top bound
-                    if (xDisplacement < 0) {
-                        xDisplacement = 0F
+                    if (xDisplacement < 0 - temp1) {
+                        xDisplacement = (0 - temp1).toFloat()
                     }
 
                     //right bound
-                    if (xDisplacement > inputView.width - lin.width) {
-                        xDisplacement = (inputView.width - lin.width).toFloat()
+                    if (xDisplacement > inputView.width - (lin.width - temp1)) {
+                        xDisplacement = (inputView.width - (lin.width-temp1)).toFloat()
                     }
 
                     //left bound
-                    if (yDisplacement < 0) {
-                        yDisplacement = 0f
+                    if (yDisplacement < 0 - temp2) {
+                        yDisplacement = (0 - temp2).toFloat()
                     }
 
                     //this flag==0 prevents keyboard from moving in docked mode, KEEP IT!
-                    if (yDisplacement > inputView.height - lin.height || flag == 0) {
+                    if (yDisplacement > inputView.height - (lin.height-temp2) || flag == 0) {
 
                         kHandle.setVisibility(View.GONE)
 //                        yDisplacement= (inputView.height-lin.height).toFloat()
 
+                        //if not then dock krne par keyboard (jo static hai) neeche toh jaayega but apne animate vaale view ke saath (toh mtlb aur bottom dikhai dega)
                         lin!!.animate()
                             .x(0F)
                             .y((inputView.height - lin.height).toFloat())
@@ -624,6 +572,9 @@ class ImeAutoFillService : InputMethodService() {
                         .y(yDisplacement)
                         .setDuration(0)
                         .start()
+
+                    temp3=xDisplacement
+                    temp4=yDisplacement
 
 
                 }
