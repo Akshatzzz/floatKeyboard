@@ -198,8 +198,14 @@ class ImeAutoFillService : InputMethodService() {
                     to whole screen, instead of parent layout(which is not whole scree in this case)*/
 
                     /* (kHandle.getX()+lin.getX()) kHnadle ke top right coordinates as it moves in inputView */
-                    startX = event.getRawX() - (kHandle.getX()+lin.getX()) + centerX;
-                    startY = event.getRawY() - (kHandle.getY()+lin.getY()) + centerY;
+//                    startX = event.getRawX() - (kHandle.getX()+lin.getX()) + centerX;
+//                    startY = event.getRawY() - (kHandle.getY()+lin.getY()) + centerY;
+
+                    startX=lin.getX()
+                    startY=lin.getY()
+
+                    Log.d("@@@", "${event.getRawX()}  ${kHandle.getX()} ${lin.getX()}  $centerX")
+                    Log.d("@@@", "${event.getRawY()}  ${kHandle.getY()} ${lin.getY()}  $centerY")
 
 //                    Log.d("&&&&", "${startX}")
 
@@ -229,8 +235,20 @@ class ImeAutoFillService : InputMethodService() {
 
                     Log.d("&&&&", "newR: ${newR}, newScale: ${newScale}")
 
-                    lin.setScaleX(newScale.toFloat())
-                    lin.setScaleY(newScale.toFloat())
+                    //to not resize from centre
+//                    lin.setPivotX(50f)
+//                    lin.setPivotY(50f)
+
+                    //working in mysterious ways
+//                        lin.setPivotY(300f)
+
+
+                    //same as below
+                    lin.animate().scaleX(newScale.toFloat())
+                        .scaleY(newScale.toFloat())
+                        .setDuration(0).start()
+//                    lin.setScaleX(newScale.toFloat())
+//                    lin.setScaleY(newScale.toFloat())
 
 
 
@@ -265,8 +283,9 @@ class ImeAutoFillService : InputMethodService() {
             }
 
 
+            //earlier 800 as width
             val params = LinearLayout.LayoutParams(
-                800, LinearLayout.LayoutParams.WRAP_CONTENT
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
 
             ).apply {
                 gravity = Gravity.CENTER_VERTICAL
@@ -290,7 +309,7 @@ class ImeAutoFillService : InputMethodService() {
 //        val location: IntArray = IntArray(2)
 //        btn.getLocationOnScreen(location)
 
-            Log.d("^^^", "temp1: ${temp1}, temp2: ${temp2}")
+//            Log.d("^^^", "temp1: ${temp1}, temp2: ${temp2}")
 
             region.union(Rect((lin.x.toInt() + temp1).toInt(),
                 (lin.y.toInt() + temp2 ).toInt(),
