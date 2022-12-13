@@ -163,6 +163,8 @@ class ImeAutoFillService : InputMethodService() {
 //        Log.d(TAG, "onFinishInput: ")
     }
 
+    //add below annotation to remove the yello text override performClick warning
+    @SuppressLint("ClickableViewAccessibility")
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(info, restarting)
         val temp = keyboard.inflateKeyboardView(LayoutInflater.from(this), inputView)
@@ -172,7 +174,9 @@ class ImeAutoFillService : InputMethodService() {
 //            kHandle.setVisibility(View.VISIBLE)
         }
 
-        kHandle.setOnTouchListener(object : View.OnTouchListener {
+
+        kHandle.setOnTouchListener(
+        object : View.OnTouchListener {
             var centerX = 0f
             var centerY = 0f
             var startR = 0f
@@ -180,6 +184,7 @@ class ImeAutoFillService : InputMethodService() {
             var startY = 0f
             var startScale = 0f
 
+            @SuppressLint("ClickableViewAccessibility")
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                 if (event?.action == MotionEvent.ACTION_DOWN) {
 //                    Log.d("****",
@@ -203,7 +208,6 @@ class ImeAutoFillService : InputMethodService() {
 
                     startX=lin.getX()
                     startY=lin.getY()
-
                     Log.d("@@@", "${event.getRawX()}  ${kHandle.getX()} ${lin.getX()}  $centerX")
                     Log.d("@@@", "${event.getRawY()}  ${kHandle.getY()} ${lin.getY()}  $centerY")
 
@@ -262,6 +266,7 @@ class ImeAutoFillService : InputMethodService() {
 
                 return true
             }
+
         })
 
 //        Log.d("******", "onStartInputView() called")
