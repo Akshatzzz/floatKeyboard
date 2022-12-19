@@ -168,6 +168,11 @@ class ImeAutoFillService : InputMethodService() {
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(info, restarting)
         val temp = keyboard.inflateKeyboardView(LayoutInflater.from(this), inputView)
+
+//        //for setting keyboard view small when opening keyboard first time, differnt from toggling, adnnot applicable in bobble cause default mode will be docked there
+//        temp1 =(lin.width - lin.width*0.9)/2
+//        temp2 =(lin.height - lin.height*0.9)/2
+
         if (flag == 1) {
             mBtn.setOnTouchListener(mOnTouchListenerTv2)
 //            lin.x= ((inputView.width-lin.width)/2).toFloat()
@@ -295,12 +300,14 @@ class ImeAutoFillService : InputMethodService() {
             ).apply {
                 gravity = Gravity.CENTER_VERTICAL
 
-                //after installing, first time onpening keyboard, this value is 0
-                leftMargin = (inputView.width - lin.width) / 2
+//                //after installing, first time onpening keyboard, this value is 0
+//                leftMargin = (inputView.width - lin.width) / 2
 
 //                Log.d("*****", "${(inputView.width-lin.width)/2}")
             }
             lin.layoutParams = params
+
+
             kHandle.setVisibility(View.VISIBLE)
             super.onComputeInsets(outInsets)
 //            Log.d(TAG, "onComputeInsets: ")
@@ -338,9 +345,15 @@ class ImeAutoFillService : InputMethodService() {
 //                //won't work cause temp1 and temp2 are calculated while scaling and not on compute insets
 //                newScale= 1.0
 
-                //so that touchable region works fine after toggling float mode from docked mode
-                temp1= 0.0
-                temp2= 0.0
+                //so that touchable region works fine after toggling float mode from docked mode (for full full width ie not scale =1)
+//                temp1= 0.0
+//                temp2= 0.0
+
+                lin.setScaleX(0.9.toFloat())
+                lin.setScaleY(0.9.toFloat())
+
+                temp1 =(lin.width - lin.width*0.9)/2
+                temp2 =(lin.height - lin.height*0.9)/2
             }
 //            setMargins(inputView,0,0,0,0)
             lin.animate().x(0f).y((inputView.height - lin.height).toFloat()).setDuration(0).start()
